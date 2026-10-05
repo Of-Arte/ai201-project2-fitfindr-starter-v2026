@@ -39,7 +39,7 @@
 
 ## What This Does
 
-<!-- Three or four sentences: what a user asks for, and what they get back. -->
+FitFindr helps a user find clothing items and get outfit ideas for them. The user types a request such as `vintage graphic tee under $30` or `denim jacket, size M`. The agent extracts the description, size and price limits from the request, and searches the listings in `data/listings.json` for the top match. Then, the model provides outfit ideas that use pieces from the user's wardrobe or general styling advice if the wardrobe is empty. Finally, it writes a fit card caption that names the item, its price and its platform. If nothing matches, the user gets a message saying what was searched and what to change instead.
 
 ---
 
@@ -181,15 +181,15 @@ Nothing beats the effortless 90s off-duty model vibe of a good medium wash. Thes
 
 **Moment 1**
 
-- _What I asked for:_
-- _What came back:_
-- _What I changed:_
+- _What I asked for:_ I asked Claude how a query like "vintage graphic tee under $30" could be parsed into `description`, `size` and `max_price`, while I was weighing a wardrobe-based branch rule.
+- _What came back:_ Claude explained that the wardrobe isn't parsed from the query at all, and laid out three options: regex, string splitting, or asking the model for JSON, with the trade-offs of each.
+- _What I changed:_ I dropped the wardrobe branch idea and committed to regex parsing in search_listings(). I filled in "How the query is parsed" with the real patterns.
 
 **Moment 2**
 
-- _What I asked for:_
-- _What came back:_
-- _What I changed:_
+- _What I asked for:_ I asked Claude to review my Tool Inventory for `search_listings` against the code for that tool, and to check that the flow followed the spec.
+- _What came back:_ Claude noticed the branch rule matched, but the `search_listings` entry didn't match the implementation. `description` referenced "the user's query" but the tool matched keywords against the title, description, category, brand, style tags and colors. It listed `size` and `max_price` as plain `str` and `float` when both can be `None`.
+- _What I changed:_ I rewrote the entry. `description` is now keywords, `size` and `max_price` are `str or None` and `float or None`, and a size matches only on whole tokens.
 
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
