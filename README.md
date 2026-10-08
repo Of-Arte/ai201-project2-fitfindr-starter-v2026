@@ -271,13 +271,53 @@ that produced it:
 **Happy path**
 
 ```
+python app.py ask 'boots' --trace
 
+[1] parse_query
+      in:  boots
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  dict with keys: description, size, max_price
+      out: 1 items: Suede Chelsea Boots — Tan
+      →    1 match(es)
+[3] select_item
+      out: Suede Chelsea Boots — Tan ($44.0, poshmark)
+[4] suggest_outfit
+      in:  Suede Chelsea Boots — Tan ($44.0, poshmark)
+      out: Pair the Suede Chelsea Boots with the baggy straight-leg jeans, white ribbed tank top, and vintage black denim…
+      →    10 wardrobe item(s)
+[5] create_fit_card
+      in:  Suede Chelsea Boots — Tan ($44.0, poshmark)
+      out: Scored these gorgeous tan suede Chelsea boots in fair condition on Poshmark for just $44, and they have that p…
+
+  Found:    Suede Chelsea Boots — Tan — $44.0 on poshmark
+
+  Outfit:   Pair the Suede Chelsea Boots with the baggy straight-leg jeans, white ribbed tank top, and vintage black denim jacket for an effortless, classic look. Alternatively, style them with the wide-leg khaki trousers, white ribbed tank top, and brown leather belt for a warm, monochromatic earth-tone outfit.
+
+  Fit card: Scored these gorgeous tan suede Chelsea boots in fair condition on Poshmark for just $44, and they have that perfectly worn-in 70s rockstar vibe. I’m picturing them with baggy straight-leg denim and a black vintage jacket for days when I want to look effortlessly cool without trying. #thriftedstyle #poshmarkfinds
+
+2 model calls this session, 514 prompt + 138 output tokens
 ```
 
 **Empty search**
 
 ```
+python app.py ask '...' --trace
 
+[1] parse_query
+      in:  ...
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  dict with keys: description, size, max_price
+      out: [] (empty)
+      →    0 match(es)
+[3] branch
+      →    search returned []: stopping before suggest_outfit
+
+  Nothing in the listings matched description '...'.
+Things to change: try broader words — 'jacket' finds more than 'cropped corduroy jacket'.
+
+0 model calls this session
 ```
 
 **On the MCP move:** <!-- what changed in your code, and whether anything
