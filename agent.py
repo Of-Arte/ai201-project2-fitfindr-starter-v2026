@@ -4,6 +4,7 @@ import config
 import trace
 from tools import search_listings, suggest_outfit, create_fit_card
 from generate import ModelUnavailable
+from mcp_client import call_tool
 
 
 # ── session state ─────────────────────────────────────────────────────────────
@@ -93,7 +94,7 @@ def _search(parsed: dict) -> list[dict]:
         from mcp_client import call_tool
 
         results = call_tool(
-            "search_listings",
+            mcp_calltool("search_listings"),
             {
                 "description": parsed["description"],
                 "size": parsed["size"],
