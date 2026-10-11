@@ -211,18 +211,108 @@ Nothing beats the effortless 90s off-duty model vibe of a good medium wash. Thes
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 | --------- | ------ | ----- | ----- | ----- | ----- | ----- | ------- |
-| 1.        |        |       |       |       |       |       |         |
-| 2.        |        |       |       |       |       |       |         |
-| 3.        |        |       |       |       |       |       |         |
-| 4.        |        |       |       |       |       |       |         |
-| 5.        |        |       |       |       |       |       |         |
+| 1. matching query completes all three tools | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. impossible query stops before second tool | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. same query produces same selected item | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. fit card has price and platform without None | 4 of 5 across 5 items | — | — | — | — | — | NOT EVALUATED (only 1 item in `scenarios.py`) |
+| 5. price ceiling strictly respected | 5 of 5 across 5 queries | — | — | — | — | — | NOT EVALUATED (only 1 query in `scenarios.py`) |
+
+*`scenarios.py` held only one scenario each for criteria 4 and 5, so neither could be scored against its multi-item / multi-query target.*
 
 **Real output from one try**, pasted as text, naming the file and function
 that produced it:
 
+### Criterion 1: matching query completes all three tools (Try 1)
+- **File & function:** `agent.py::run_agent`
+- **Query:** `vintage graphic tee under $30`
+
+```text
+stopped early: no
+selected_item: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+search_results: 10
+
+Outfit suggestion:
+Pair the Y2K Baby Tee with the baggy straight-leg jeans, black combat boots, and the vintage black denim jacket for an edgy, nostalgic street style. Alternatively, style it with the wide-leg khaki trousers, brown leather belt, and chunky white sneakers for a cute, retro-casual look.
+
+Fit card:
+Living for this Y2K butterfly baby tee to channel that ultimate early 2000s brat-pack energy. It’s in mint condition and listed on Depop right now for $18. Pair it with baggy cargos and stomper boots for a gritty, nostalgic street style look. #y2kstyle #thriftootd
 ```
 
+### Criterion 2: impossible query stops before second tool (Try 1)
+- **File & function:** `agent.py::_nothing_found_message` (invoked via `agent.py::run_agent`)
+- **Query:** `designer ballgown size XXS under $5`
+
+```text
+stopped early: yes — Nothing in the listings matched description 'designer ballgown', size XXS, under $5.
+Things to change: try broader words — 'jacket' finds more than 'cropped corduroy jacket'; drop the size, or try a neighbouring one; raise the price ceiling above $5.
+selected_item: (none)
+search_results: 0
+
+Trace:
+[1] parse_query
+      in:  designer ballgown size XXS under $5
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  dict with keys: description, size, max_price
+      out: [] (empty)
+      →    0 match(es)
+[3] branch
+      →    search returned []: stopping before suggest_outfit
 ```
+
+### Criterion 3: same query produces same selected item (Try 1)
+- **File & function:** `tools.py::search_listings` and `agent.py::run_agent`
+- **Query:** `oversized flannel shirt`
+
+```text
+stopped early: no
+selected_item: Oversized Flannel Shirt — Plaid Red/Black ($22.0, thredUp)
+search_results: 7
+
+Trace:
+[1] parse_query
+      in:  oversized flannel shirt
+      out: dict with keys: description, size, max_price
+[2] search_listings (via MCP)
+      in:  dict with keys: description, size, max_price
+      out: 7 items: Oversized Flannel Shirt — Plaid Red/Black, Knit Cardigan — Chunky Brown, Oversized Crewneck Sweatshirt — Vintage Navy … +4 more
+      →    7 match(es)
+[3] select_item
+      out: Oversized Flannel Shirt — Plaid Red/Black ($22.0, thredUp)
+```
+
+*(Note: `selected_item` resolved to `lst_003` Oversized Flannel Shirt — Plaid Red/Black in all 5 tries).*
+
+### Criterion 4: fit card has price and platform without None (Try 1)
+- **File & function:** `tools.py::create_fit_card`
+- **Query:** `y2k baby tee butterfly print`
+- **Item evaluated:** `Y2K Baby Tee — Butterfly Print` (listing `lst_002`, `brand: null`, price `$18.0`, platform `depop`)
+
+```text
+Totally obsessed with this butterfly print Y2K baby tee I just dropped on Depop for $18. The print gives off major 2000s pop star vibes, especially styled with baggy denim and chunky boots. Grab it before I change my mind and keep it for myself! 🦋 #y2kstyle #depopseller
+```
+
+*(Output shows 1 item tested; did not evaluate 5 distinct items as required by the original Unit 3 target).*
+
+### Criterion 5: price ceiling strictly respected (Try 1)
+- **File & function:** `tools.py::search_listings` (via `mcp_server.py`)
+- **Query:** `denim jacket under $40` (parsed: `max_price: 40.0`)
+
+```text
+[2] search_listings (via MCP)
+      in:  dict with keys: description, size, max_price
+      out: 5 items: Vintage Levi's 501 Jeans — Medium Wash, High-Waisted Denim Shorts — Cutoff, Shacket — Olive Canvas … +2 more
+      →    5 match(es)
+
+search_results (5 items):
+1. Vintage Levi's 501 Jeans — Medium Wash ($38.00)
+2. High-Waisted Denim Shorts — Cutoff ($24.00)
+3. Shacket — Olive Canvas ($33.00)
+4. Denim Mini Skirt — Distressed ($30.00)
+5. Denim Vest — 90s Vintage ($27.00)
+```
+
+*(Output shows 1 query tested; did not evaluate 5 distinct queries as required by the original Unit 3 target).*
 
 ---
 

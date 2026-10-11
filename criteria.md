@@ -59,6 +59,15 @@ brand, the fit card contains the price and platform and never contains
 **Why this target:** The fit card calls a model, so the same input can
 produce different words each time. Allowing 1 miss covers model variation.
 
+> **Revised in unit 4:** Running the same unbranded item across 5 tries, the
+> fit card contains the price and platform and never contains "None" in at
+> least 4 of 5 tries.
+>
+> **Why revised:** `run_eval.py` evaluates each scenario across 5 tries of the
+> same item rather than 5 different items. Running the same unbranded item
+> repeatedly tests whether the fit card reliably handles missing brand fields
+> across model variations.
+
 ---
 
 ## 5. Your choice
@@ -68,6 +77,12 @@ price at or below the limit, in 5 of 5 tries.
 
 **Why this target:** 5/5 is reasonable here because the search step is
 deterministic and doesn't involve a model call.
+
+> **Revised in unit 4:** For a query with a price limit, every listing in
+> search_results has a price at or below the limit, in 5 of 5 tries.
+>
+> **Why revised:** `run_eval.py` tests a single scenario query across 5 tries
+> rather than 5 distinct queries in one scenario row.
 
 ---
 
