@@ -336,13 +336,18 @@ search_results (5 items):
 
 | #   | Criterion | Target | Verdict | How I decided |
 | --- | --------- | ------ | ------- | ------------- |
-| 1   |           |        |         |               |
-| 2   |           |        |         |               |
-| 3   |           |        |         |               |
-| 4   |           |        |         |               |
-| 5   |           |        |         |               |
+| 1   | Matching query completes all three tools | In at least 4 of 5 tries | MET (5/5) | In all 5 tries with `'vintage graphic tee under $30'`, all three tools executed and returned a complete fit card. |
+| 2   | Impossible query stops before second tool | 5 of 5 tries | MET (5/5) | In all 5 tries with `'designer ballgown size XXS under $5'`, search returned `[]`, loop halted before `suggest_outfit`, and an actionable message was set in `session["error"]`. |
+| 3   | Something about state | 5 of 5 tries | MET (5/5) | Across all 5 tries with `'oversized flannel shirt'`, `session["selected_item"]["id"]` resolved to `lst_003`. |
+| 4   | Something about the fit card | In 4 of 5 tries across 5 different items (≥2 unbranded) | NOT EVALUATED | Only 1 unbranded item (`lst_002`) was tested across 5 attempts; `scenarios.py` lacked entries for the remaining 4 items required by the target. |
+| 5   | Your choice (price ceiling) | For 5 queries with price limit, all results ≤ limit in 5/5 tries | NOT EVALUATED | Only 1 price-limited query (`'denim jacket under $40'`) was tested across 5 attempts; `scenarios.py` lacked entries for the other 4 queries required by the target. |
 
 **Diagnoses**
+
+- **Criteria 1, 2, and 3:** Fully tested and met without defect. The loop, MCP search tool, branch stop condition, and session state persistence were stable across all 5 runs.
+- **Criteria 4 and 5 (Configuration Oversight):**
+  - **Where it happened:** `scenarios.py`
+  - **Mechanism:** Both criteria were written in unit 3 as multi-item and multi-query tests. During setup I authored a single scenario for each, assuming the runner's 5 repeated tries would satisfy "out of 5". Repeating one item 5 times did not test variation across items, so multi-entity criteria were never exercised.
 
 ---
 
