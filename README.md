@@ -491,6 +491,8 @@ The run log records only the match count and the selected item per try, so I con
      you did. "I ran out of time" is fine if it's true. Pretending nothing is
      left is not. -->
 
+No criterion is currently missed, but the coverage is limited. This shows the tools meet my targets on these 5 items and queries, but there are other edge cases to test. Criterion 4 and 5 pass because the queries are too easy, Criterion 5 has only one result at its ceiling, and nothing tests a price filter combined with a size filter. With more time I would rewrite these criteria to be more challenging by targeting those edge cases..  
+
 <!-- ═════════════════════════════════════════════════════════════════════
 
      SUBMISSION CHECKLIST — unit 3
