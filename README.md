@@ -191,6 +191,12 @@ Nothing beats the effortless 90s off-duty model vibe of a good medium wash. Thes
 - _What came back:_ Claude noticed the branch rule matched, but the `search_listings` entry didn't match the implementation. `description` referenced "the user's query" but the tool matched keywords against the title, description, category, brand, style tags and colors. It listed `size` and `max_price` as plain `str` and `float` when both can be `None`.
 - _What I changed:_ I rewrote the entry. `description` is now keywords, `size` and `max_price` are `str or None` and `float or None`, and a size matches only on whole tokens.
 
+**Moment 3**
+
+- _What I asked for:_ I asked Claude to write throwaway Python scripts to check criteria 4 and 5 for the 19:20 run. For each try it pulled the selected item's price and platform, then checked that the fit card contained `$price` and the platform name, and did not contain "None".
+- _What came back:_ Every fit card passed. Every listing was at or under its ceiling, including the $45 jacket at exactly $45. Both criteria came back MET at 5/5.
+- _What I changed:_ After examining the results and confirming the correctness of the scripts, I updated the README to record those results under "The Improvement".
+
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
      Don't fill these in during unit 3.
@@ -429,24 +435,53 @@ full. -->
 
      `python run_eval.py --label after` -->
 
-**What I changed:**
+**What I changed:** I edited `scenarios.py` to add the missing scenarios: 5 distinct items for criterion 4 (including 2 unbranded: baby tee and corduroy pants) and 5 distinct price-limited queries for criterion 5. Then I re-ran `python run_eval.py`. 
 
-**Which failure it was meant to fix:**
+**Which failure it was meant to fix:** The NOT EVALUATED verdicts on criteria 4 and 5, which the diagnosis traced to a test configuration gap in `scenarios.py`.
 
 ### Run Log — After
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 | --------- | ------ | ----- | ----- | ----- | ----- | ----- | ------- |
-| 1.        |        |       |       |       |       |       |         |
-| 2.        |        |       |       |       |       |       |         |
-| 3.        |        |       |       |       |       |       |         |
-| 4.        |        |       |       |       |       |       |         |
-| 5.        |        |       |       |       |       |       |         |
+| 1. matching query completes all three tools | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. impossible query stops before second tool | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. same query produces same selected item | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. fit card has price and platform without None | 4 of 5 across 5 items | PASS | PASS | PASS | PASS | PASS | MET (5/5 on each of 5 items) |
+| 5. price ceiling strictly respected | 5 of 5 across 5 queries | PASS | PASS | PASS | PASS | PASS | MET (5/5 on each of 5 queries) |
 
-**Did it help, and how do I know:**
+For criteria 4 and 5, each Try cell means that try passed on all 5 items / all 5 queries.
 
-<!-- If it made things worse, say that. Honestly reported, that earns full
-     credit and is more interesting than one that worked. -->
+### Criterion 4: fit card has price and platform without None (all 5 items, 5 tries each)
+- **File & function:** `tools.py::create_fit_card`
+
+| Item | Query | Brand | Price / platform | Tries with price + platform, no "None" |
+| ---- | ----- | ----- | ---------------- | -------------------------------------- |
+| Y2K Baby Tee — Butterfly Print | `butterfly baby tee` | none | $18 / depop | 5/5 |
+| Corduroy Wide-Leg Pants — Rust | `corduroy wide leg pants rust` | none | $32 / depop | 5/5 |
+| Vintage Levi's 501 Jeans — Medium Wash | `vintage levis 501 jeans` | Levi's | $38 / depop | 5/5 |
+| 90s Track Jacket — Navy/White Stripe | `90s track jacket navy` | Champion | $45 / poshmark | 5/5 |
+| Oversized Flannel Shirt — Plaid Red/Black | `oversized flannel shirt plaid` | Woolrich | $22 / thredUp | 5/5 |
+
+I checked all 25 fit cards by script: each contains the selected item's price and platform name, and none contains "None". Sample (baby tee, Try 1):
+
+```text
+Found this absolute gem of a Y2K baby tee with the cutest butterfly print and I am obsessed. It’s in gorgeous condition and up on Depop right now for $18. Pair it with baggy jeans and combat boots for that effortless edgy streetwear look. #depop #y2kstyle
+```
+
+### Criterion 5: price ceiling strictly respected (all 5 queries, 5 tries each)
+- **File & function:** `tools.py::search_listings` (via `mcp_server.py`)
+
+| Query | Ceiling | Matches | Highest price in results | All ≤ ceiling |
+| ----- | ------- | ------- | ------------------------ | ------------- |
+| `suede boots under $50` | $50 | 1 | $44 | yes, 5/5 |
+| `graphic tee under $25` | $25 | 4 | $24 | yes, 5/5 |
+| `flannel shirt under $25` | $25 | 2 | $22 | yes, 5/5 |
+| `denim jacket under $45` | $45 | 7 | $45 | yes, 5/5 |
+| `corduroy pants under $35` | $35 | 2 | $32 | yes, 5/5 |
+
+The run log records only the match count and the selected item per try, so I confirmed the full result lists by calling `search_listings` directly with the same parsed arguments. Counts match the log (1, 4, 2, 7, 2) and every price is at or under the ceiling. The search is deterministic, so all 5 tries return the same list. The $45 jacket hits the ceiling exactly, which shows the check is inclusive.
+
+**Did it help, and how do I know:** Yes. I know because I checked all 25 fit cards for "price and platform without None", and the full result list of each price-limited query against its ceiling. The unbranded items showed the null-brand handling in `create_fit_card` works
 
 ---
 

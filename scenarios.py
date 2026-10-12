@@ -35,20 +35,79 @@ SCENARIOS = [
         "wardrobe": "example",
         "criterion": 3,
     },
+    # ── Criterion 4: Fit card across 5 different items (>=2 unbranded) ────────
     {
-        # Fit card mentions price and platform and never 'None'. Criterion 4.
-        "name": "fit card has price and platform without None",
-        "query": "y2k baby tee butterfly print",
+        # Item 1 (unbranded): Y2K Baby Tee — Butterfly Print ($18, depop)
+        "name": "fit card item 1 unbranded baby tee",
+        "query": "butterfly baby tee",
         "wardrobe": "example",
         "criterion": 4,
     },
     {
-        # Price limit respected: all search results at or below max_price. Criterion 5.
-        "name": "price ceiling strictly respected",
-        "query": "denim jacket under $40",
+        # Item 2 (unbranded): Corduroy Wide-Leg Pants — Rust ($32, depop)
+        "name": "fit card item 2 unbranded corduroy pants",
+        "query": "corduroy wide leg pants rust",
+        "wardrobe": "example",
+        "criterion": 4,
+    },
+    {
+        # Item 3 (branded): Vintage Levi's 501 Jeans — Medium Wash ($38, depop)
+        "name": "fit card item 3 levis 501 jeans",
+        "query": "vintage levis 501 jeans",
+        "wardrobe": "example",
+        "criterion": 4,
+    },
+    {
+        # Item 4 (branded): 90s Track Jacket — Navy/White Stripe ($45, poshmark)
+        "name": "fit card item 4 track jacket",
+        "query": "90s track jacket navy",
+        "wardrobe": "example",
+        "criterion": 4,
+    },
+    {
+        # Item 5 (branded): Oversized Flannel Shirt — Plaid Red/Black ($22, thredUp)
+        "name": "fit card item 5 flannel shirt",
+        "query": "oversized flannel shirt plaid",
+        "wardrobe": "example",
+        "criterion": 4,
+    },
+    # ── Criterion 5: Price ceiling across 5 distinct queries ──────────────────
+    {
+        # Query 1: Boots with $50 ceiling
+        "name": "price ceiling query 1 boots under 50",
+        "query": "suede boots under $50",
         "wardrobe": "example",
         "criterion": 5,
     },
+    {
+        # Query 2: Graphic tee with $25 ceiling
+        "name": "price ceiling query 2 tee under 25",
+        "query": "graphic tee under $25",
+        "wardrobe": "example",
+        "criterion": 5,
+    },
+    {
+        # Query 3: Flannel with $25 ceiling
+        "name": "price ceiling query 3 flannel under 25",
+        "query": "flannel shirt under $25",
+        "wardrobe": "example",
+        "criterion": 5,
+    },
+    {
+        # Query 4: Jacket with $45 ceiling
+        "name": "price ceiling query 4 jacket under 45",
+        "query": "denim jacket under $45",
+        "wardrobe": "example",
+        "criterion": 5,
+    },
+    {
+        # Query 5: Pants with $35 ceiling
+        "name": "price ceiling query 5 pants under 35",
+        "query": "corduroy pants under $35",
+        "wardrobe": "example",
+        "criterion": 5,
+    },
+    # ── Failure Mode Diagnostic ───────────────────────────────────────────────
     {
         # A user with nothing saved. One of unit 4's three failure modes.
         "name": "empty wardrobe fallback",
